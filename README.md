@@ -1,13 +1,24 @@
+# LABORATOIRES D'INGÉNIERIE BIG DATA
+
 [![Hadoop](https://img.shields.io/badge/Hadoop-3.2.0-yellow?logo=apache-hadoop)](https://hadoop.apache.org/)
+[![Spark](https://img.shields.io/badge/Apache%20Spark-3.5.1-orange?logo=apache-spark)](https://spark.apache.org/)
 [![Java](https://img.shields.io/badge/Java-8-red?logo=java)](https://www.java.com/)
 [![Python](https://img.shields.io/badge/Python-3.x-blue?logo=python)](https://www.python.org/)
 
+---
 
-# LABORATOIRES D'INGÉNIERIE BIG DATA
+## Présentation Générale
 
+Ce dépôt contient une collection de laboratoires Big Data réalisés dans le cadre de mon cursus en ingénierie Data Science & Business Intelligence.
 
-Ce dépôt contient une collection de laboratoires Hadoop et d'exercices MapReduce développés dans le cadre de mon cursus en ingénierie .  
-Chaque laboratoire explore les concepts fondamentaux de l'écosystème Hadoop — des opérations de fichiers de base à l'implémentation de MapReduce en Java et Python.
+Les travaux couvrent les fondamentaux de l'écosystème Big Data, notamment :
+
+* Hadoop & HDFS
+* MapReduce (Java & Python Streaming)
+* Apache Spark & Spark SQL
+* Analyse de données à grande échelle
+
+Chaque laboratoire est accompagné de scripts exécutables, de commandes documentées et d'une approche pédagogique progressive.
 
 ---
 
@@ -15,145 +26,150 @@ Chaque laboratoire explore les concepts fondamentaux de l'écosystème Hadoop �
 
 ```
 BIGDATA_ENGINEERING_LABS/
-├── hadoop_lab0_2/                 # Opérations Hadoop de base
+├── hadoop_lab0_2/                 # Opérations Hadoop de base (HDFS)
 │   ├── HadoopFileStatus.java
 │   ├── ReadHDFS.java
 │   ├── HDFSWrite.java
 │   ├── pom.xml
 │   └── commands.sh
 │
-├── lab3_mapreduce/         # Implémentation MapReduce (Java + Python)
+├── lab3_mapreduce/                # MapReduce Java & Python Streaming
 │   ├── WordCount.java
 │   ├── pom.xml
 │   ├── mapper.py
 │   ├── reducer.py
 │   └── run_lab3.sh
 │
+├── lab4_spark_sql/                # Analyse avec Apache Spark SQL
+│   ├── data/
+│   │   └── results.csv
+│   ├── spark_sql_analysis.py
+│   └── README.md
+│
 └── README.md
 ```
 
 ---
 
-## Lab 0–2 : Opérations Hadoop de Base
+## Lab 0–2 : Opérations Hadoop de Base (HDFS)
 
-Ces laboratoires démontrent l'interaction avec HDFS (Hadoop Distributed File System) à l'aide de programmes Java.
+Ces laboratoires démontrent l'interaction avec HDFS à l'aide de programmes Java.
 
-### Exécutions JAR Java
+### Exemples d'Exécution
 
-#### Commande 1 : Afficher le Statut des Fichiers dans HDFS
+#### Affichage du statut des fichiers HDFS
+
 ```bash
-hadoop jar /shared_volume/hadoop_lab-1.0-SNAPSHOT-HadoopFileStatus.jar /user/root/input purchases.txt achats.txt
+hadoop jar HadoopFileStatus.jar /user/root/input purchases.txt achats.txt
 ```
-**Objectif :** Cette commande exécute l'application Java HadoopFileStatus pour récupérer et afficher les métadonnées des fichiers spécifiés stockés dans HDFS, incluant la taille, les permissions, le facteur de réplication et la date de dernière modification.
 
-#### Commande 2 : Lire un Fichier depuis HDFS
-```bash
-hadoop jar /shared_volume/hadoop_lab-1.0-SNAPSHOT-ReadHDFS.jar /user/root/input/achats.txt
-```
-**Objectif :** Cette commande exécute l'application Java ReadHDFS pour lire et afficher le contenu du fichier `achats.txt` stocké dans le répertoire HDFS `/user/root/input`.
+Affiche les métadonnées (taille, permissions, réplication, date).
 
-#### Commande 3 : Écrire du Texte dans HDFS
+#### Lecture d'un fichier HDFS
+
 ```bash
-hadoop jar /shared_volume/hadoop_lab-1.0-SNAPSHOT-HDFSWrite.jar /input/bonjour.txt "Bonjour depuis HDFSWrite"
+hadoop jar ReadHDFS.jar /user/root/input/achats.txt
 ```
-**Objectif :** Cette commande exécute l'application Java HDFSWrite pour créer un nouveau fichier nommé `bonjour.txt` dans le répertoire HDFS `/input` et y écrire le texte "Bonjour depuis HDFSWrite".
+
+#### Écriture dans HDFS
+
+```bash
+hadoop jar HDFSWrite.jar /input/bonjour.txt "Bonjour depuis HDFSWrite"
+```
 
 ---
 
 ## Lab 3 : WordCount avec MapReduce
 
-Ce laboratoire compare deux implémentations de l'algorithme WordCount :
-- Java MapReduce (JAR compilé)
-- Python Hadoop Streaming (scripts mapper/reducer)
+Comparaison de deux implémentations du classique WordCount :
 
-### Exécution Java MapReduce
+* MapReduce Java (compilé)
+* Hadoop Streaming avec Python
+
+### Java MapReduce
 
 ```bash
-#!/bin/bash
-
-# Nettoyer les sorties précédentes
-hdfs dfs -rm -r /user/root/output /user/root/output_py 2>/dev/null
-
-# Exécuter WordCount en Java
-hadoop jar /shared_volume/WordCount.jar /user/root/input/achats.txt /user/root/output
-
-# Afficher les 20 premiers résultats
-hdfs dfs -cat /user/root/output/part-r-00000 | head -20
+hadoop jar WordCount.jar input output
 ```
 
-**Explication des Commandes :**
-
-1. **`hdfs dfs -rm -r /user/root/output /user/root/output_py 2>/dev/null`**  
-   Supprime les répertoires de sortie existants pour éviter les conflits. Le `2>/dev/null` supprime les messages d'erreur si les répertoires n'existent pas.
-
-2. **`hadoop jar /shared_volume/WordCount.jar /user/root/input/achats.txt /user/root/output`**  
-   Exécute l'application Java MapReduce WordCount compilée. Elle lit le fichier d'entrée `achats.txt`, compte les occurrences de mots et écrit les résultats dans le répertoire `/user/root/output`.
-
-3. **`hdfs dfs -cat /user/root/output/part-r-00000 | head -20`**  
-   Affiche les 20 premières lignes du fichier de sortie MapReduce, montrant les comptes de mots au format `mot nombre`.
-
-### Exécution Python Streaming
+### Python Streaming
 
 ```bash
-hadoop jar /usr/local/hadoop/share/hadoop/tools/lib/hadoop-streaming-3.2.0.jar \
-  -files /shared_volume/mapper.py,/shared_volume/reducer.py \
+hadoop jar hadoop-streaming.jar \
+  -files mapper.py,reducer.py \
   -mapper "python3 mapper.py" \
   -reducer "python3 reducer.py" \
-  -input /user/root/input/achats.txt \
-  -output /user/root/output_py
-
-# Afficher les dernières lignes de sortie
-hdfs dfs -cat /user/root/output_py/part-00000 | tail -20
+  -input input \
+  -output output_py
 ```
-
-**Explication des Commandes :**
-
-1. **`hadoop jar /usr/local/hadoop/share/hadoop/tools/lib/hadoop-streaming-3.2.0.jar`**  
-   Invoque l'utilitaire Hadoop Streaming, qui permet l'exécution de jobs MapReduce en utilisant n'importe quel script exécutable (Python, Perl, etc.).
-
-2. **`-files /shared_volume/mapper.py,/shared_volume/reducer.py`**  
-   Distribue les scripts Python mapper et reducer à tous les nœuds du cluster pour exécution.
-
-3. **`-mapper "python3 mapper.py"`**  
-   Spécifie la commande pour exécuter le script mapper, qui traite les données d'entrée et émet des paires clé-valeur.
-
-4. **`-reducer "python3 reducer.py"`**  
-   Spécifie la commande pour exécuter le script reducer, qui agrège les sorties du mapper et produit les résultats finaux.
-
-5. **`-input /user/root/input/achats.txt`**  
-   Définit le chemin du fichier d'entrée dans HDFS.
-
-6. **`-output /user/root/output_py`**  
-   Définit le répertoire de sortie où les résultats seront stockés.
-
-7. **`hdfs dfs -cat /user/root/output_py/part-00000 | tail -20`**  
-   Affiche les 20 dernières lignes du fichier de sortie, montrant les résultats finaux du comptage de mots.
 
 ---
 
-## Comparaison : Java vs Python Streaming
+## Lab 4 : Analyse de Données avec Apache Spark SQL
 
-| **Critère**              | **Java MapReduce**              | **Python Streaming**              |
-|--------------------------|---------------------------------|-----------------------------------|
-| **Type de Code**         | Compilé                         | Interprété                        |
-| **Performance**          | Rapide et optimisé              | Plus lent sur grands ensembles    |
-| **Facilité d'Usage**     | Plus complexe à implémenter     | Simple et léger                   |
-| **Outil d'Exécution**    | `hadoop jar`                    | `hadoop-streaming.jar`            |
-| **Langage**              | Java                            | Python                            |
+### Objectif
+
+Se familiariser avec l'API Spark SQL pour l'analyse analytique et statistique de données sportives à grande échelle.
+
+### Dataset
+
+* 44 341 matchs internationaux
+* Période : 1872 – 2022
+* Compétitions : Coupe du Monde FIFA, amicaux, tournois officiels
+* Matchs internationaux masculins uniquement
+
+### Analyses Réalisées
+
+* Requêtes SQL simples (COUNT, GROUP BY, ORDER BY)
+* Agrégations avancées
+* Fonctions analytiques (ROW_NUMBER, fenêtres)
+* Comparaisons domicile / extérieur
+* Séries de victoires et goal average
+
+### Exécution
+
+```bash
+python spark_sql_analysis.py
+```
+
+### Technologies
+
+* Apache Spark 3.5.1
+* PySpark
+* Spark SQL
+* Mode local (sans Hadoop)
+
+---
+
+## Comparaison des Approches Big Data
+
+| Technologie | Usage principal    | Points forts               |
+| ----------- | ------------------ | -------------------------- |
+| Hadoop HDFS | Stockage distribué | Fiabilité                  |
+| MapReduce   | Traitement batch   | Scalabilité                |
+| Spark SQL   | Analyse analytique | Performance & expressivité |
 
 ---
 
 ## Technologies Utilisées
 
-- Hadoop 3.2.0
-- Java 8
-- Python 3
-- Maven
-- Cluster Hadoop Docker
+* Apache Hadoop 3.2.0
+* Apache Spark 3.5.1
+* Java 8
+* Python 3
+* Maven
+* Docker (cluster Hadoop)
 
 ---
 
 ## Auteur
 
-**Omar LARAJE**  
+**Omar LARAJE**
+
 Étudiant Ingénieur en Data Science & Business Intelligence
+
+Intéressé par le Big Data, l'Analytics et l'Intelligence Artificielle
+
+GitHub : [https://github.com/omarlr-pro](https://github.com/omarlr-pro)
+
+LinkedIn : [https://www.linkedin.com/in/omar-laraje-998827233/](https://www.linkedin.com/in/omar-laraje-998827233/)
